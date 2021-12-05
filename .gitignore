@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 data/*
 outputs/*
+3rd_party_items/*
