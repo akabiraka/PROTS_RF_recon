@@ -10,7 +10,7 @@ from objects.MutationUtils import MutationUtils
 pdbs_cln_dir="data/pdbs_clean/"
 input_file_path="data/dataset_5_train.csv"
 # input_file_path="data/dataset_5_test.csv"
-out_dir="data/features/ss_sa/"
+out_dir="data/features/ss_sa_rasa/"
 n_rows_to_skip = 0
 n_rows_to_evalutate = 10
 
