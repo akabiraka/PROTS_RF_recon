@@ -22,4 +22,4 @@
 ##the array task is set in the environment variable $SLURM_ARRAY_TASK_ID in python you
 ##can scrape it with ID = int(os.environ["SLURM_ARRAY_TASK_ID"])
 
-python data_gen/distributed_pssm_generator.py
+python data_generators/distributed_pssm_generator.py
