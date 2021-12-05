@@ -210,6 +210,16 @@ class PDBData(object):
         residues = PDBParser(QUIET=True).get_structure("", pdb_file)[0][chain_id].get_residues()
         residue_ids_dict = {residue.id[1]:i for i, residue in enumerate(residues)}
         return residue_ids_dict
+
+    def get_ss_and_rasa_at_residue(self, pdb_id, chain_id, cln_pdb_file, residue_pos):
+        """ss:Secondary structure. rasa:Relative accessible surface area
+        """
+        model = PDBParser(QUIET=True).get_structure(pdb_id, cln_pdb_file)[0]
+        residue_id = model[chain_id][residue_pos].id
+        dssp = DSSP(model, cln_pdb_file, dssp="mkdssp")
+        ss = dssp[chain_id, residue_id][2]
+        asa = dssp[chain_id, residue_id][3]
+        return ss, asa
     
     
 # clean_pdb_file = "data/pdbs_clean/1amqA.pdb" 

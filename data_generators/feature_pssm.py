@@ -7,8 +7,8 @@ import numpy as np
 from features.PSSM import PSSM
 from objects.MutationUtils import MutationUtils
 
-# config
-pdbs_clean_dir="data/pdbs_clean/"
+# configs
+pdbs_cln_dir="data/pdbs_clean/"
 fastas_dir="data/fastas/"
 input_file_path="data/dataset_5_train.csv"
 # input_file_path="data/dataset_5_test.csv"
@@ -27,9 +27,9 @@ for i, row in df.iterrows():
     # extracting the data
     pdb_id, chain_id, mutation, mutation_site, wild_residue, mutant_residue, ddg = mutation_utils.get_row_items(row)
     
-    clean_pdb_file = pdbs_clean_dir+pdb_id+chain_id+".pdb"
+    clean_pdb_file = pdbs_cln_dir+pdb_id+chain_id+".pdb"
     zero_based_mutation_site = mutation_utils.get_zero_based_mutation_site(clean_pdb_file, chain_id, mutation_site)
-    print("Row no:{}->{}{}, mutation:{}, idx:{}, zero_based_idx:{}".format(i+1, pdb_id, chain_id, mutation, mutation_site, zero_based_mutation_site))
+    print("Row no:{}->{}{}, mutation:{}, mutation_site:{}, zero_based_mutation_site:{}".format(i+1, pdb_id, chain_id, mutation, mutation_site, zero_based_mutation_site))
 
     # computing wildtype features
     wild_fasta_file = fastas_dir+pdb_id+chain_id+".fasta"
