@@ -16,4 +16,7 @@ Base paper title: PROTS-RF: A Robust Model for Predicting MutationInduced Protei
       * Home: https://swift.cmbi.umcn.nl/gv/dssp/
       * Github: https://github.com/PDB-REDO/dssp
   * `python data_generators/sa_sa_rasa.py`
-* **Relative difference** (dimension=6)
+* **Relative difference** (dimension=5)
+  * Described in details in authors previous work: https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-62
+  * `python data_generators/feature_relative_difference.py`
+* **PROTS features** (dimension=13)

@@ -19,44 +19,45 @@ class RelativeDifference(object):
     def count_positive_charged_residues(self, fasta_file):
         pos_residues=["R", "K", "H"]
         cnt, cnt_normalized = self.__get_cnt_and_normalized(fasta_file, pos_residues)
-        print(cnt, cnt_normalized)
+        # print(cnt, cnt_normalized)
         return cnt, cnt_normalized
 
     def count_negative_charged_residues(self, fasta_file):
         neg_residues=["E", "D"]
         cnt, cnt_normalized = self.__get_cnt_and_normalized(fasta_file, neg_residues) 
-        print(cnt, cnt_normalized)
+        # print(cnt, cnt_normalized)
         return cnt, cnt_normalized
 
     def count_charged_residues(self, fasta_file):
         charged_residues=["R", "K", "H", "E", "D"]
         cnt, cnt_normalized = self.__get_cnt_and_normalized(fasta_file, charged_residues)  
-        print(cnt, cnt_normalized)
+        # print(cnt, cnt_normalized)
         return cnt, cnt_normalized
 
     def count_small_residues(self, fasta_file):
         sml_residues=["T", "D"]
         cnt, cnt_normalized = self.__get_cnt_and_normalized(fasta_file, sml_residues) 
-        print(cnt, cnt_normalized)
+        # print(cnt, cnt_normalized)
         return cnt, cnt_normalized
 
     def count_tiny_residues(self, fasta_file):
         tiny_residues=["A", "G", "P", "S"]
         cnt, cnt_normalized = self.__get_cnt_and_normalized(fasta_file, tiny_residues) 
-        print(cnt, cnt_normalized)
+        # print(cnt, cnt_normalized)
         return cnt, cnt_normalized
 
-rd=RelativeDifference()
-fasta_file="data/fastas/1a5eA.fasta"
-rd.count_positive_charged_residues(fasta_file)
-rd.count_negative_charged_residues(fasta_file)
-rd.count_charged_residues(fasta_file)
-rd.count_small_residues(fasta_file)
-rd.count_tiny_residues(fasta_file)
 
-fasta_file="data/fastas/1a5eA_D_74_N.fasta"
-rd.count_positive_charged_residues(fasta_file)
-rd.count_negative_charged_residues(fasta_file)
-rd.count_charged_residues(fasta_file)
-rd.count_small_residues(fasta_file)
-rd.count_tiny_residues(fasta_file)
+# relative_diff=RelativeDifference()
+# fasta_file="data/fastas/1a5eA.fasta"
+# relative_diff.count_positive_charged_residues(fasta_file)
+# relative_diff.count_negative_charged_residues(fasta_file)
+# relative_diff.count_charged_residues(fasta_file)
+# relative_diff.count_small_residues(fasta_file)
+# relative_diff.count_tiny_residues(fasta_file)
+
+# fasta_file="data/fastas/1a5eA_D_74_N.fasta"
+# relative_diff.count_positive_charged_residues(fasta_file)
+# relative_diff.count_negative_charged_residues(fasta_file)
+# relative_diff.count_charged_residues(fasta_file)
+# relative_diff.count_small_residues(fasta_file)
+# relative_diff.count_tiny_residues(fasta_file)
