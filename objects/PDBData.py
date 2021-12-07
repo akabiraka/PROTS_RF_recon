@@ -218,8 +218,21 @@ class PDBData(object):
         residue_id = model[chain_id][residue_pos].id
         dssp = DSSP(model, cln_pdb_file, dssp="mkdssp")
         ss = dssp[chain_id, residue_id][2]
-        asa = dssp[chain_id, residue_id][3]
-        return ss, asa
+        rasa = dssp[chain_id, residue_id][3]
+        return ss, rasa
+
+    def get_full_ss_and_sa(self, pdb_id, chain_id, cln_pdb_file, ss_dict, sa_classification_func):
+        """sa: solvent accessibility, ss:Secondary structure
+        """
+        residue_ids_dict = self.get_residue_ids_dict(cln_pdb_file, chain_id)
+        ss_types, sa_types, rasa_values = [], [], []
+        for res_id in residue_ids_dict.keys():
+            ss, rasa = self.get_ss_and_rasa_at_residue(pdb_id, chain_id, cln_pdb_file, res_id)
+            ss_types.append(ss_dict.get(ss))
+            sa_types.append(sa_classification_func(rasa))
+            rasa_values.append(rasa)
+        
+        return "".join(ss_types), "".join(sa_types), rasa_values
     
     
 # clean_pdb_file = "data/pdbs_clean/1amqA.pdb" 
