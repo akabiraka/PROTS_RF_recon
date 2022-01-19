@@ -87,8 +87,9 @@ class PROTS(object):
 
         all_occurances = []
         for pdb_chain_id in pdb_chain_ids:
-            pdb_id = pdb_chain_id[:4]
-            chain_id = pdb_chain_id[4]
+            pdb_id = pdb_chain_id[:4] # "1h7m" 
+            chain_id = pdb_chain_id[4] # "A" 
+            # pdb_chain_id="1h7mA"
 
             fasta_file = self.fastas_dir+pdb_chain_id+".fasta"
             fasta = next(SeqIO.parse(fasta_file, "fasta"))
@@ -149,5 +150,5 @@ prots = PROTS()
 # print(len(fragments))
 
 
-# prots.get_all_feat_occ_for_a_frag(fragment="PDGH")
+# prots.get_all_feat_occ_for_a_frag(fragment="ARND")
 prots.compute_all_feat_occ_for_all_frag()

@@ -20,3 +20,7 @@ Base paper title: PROTS-RF: A Robust Model for Predicting MutationInduced Protei
   * Described in details in authors previous work: https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-62
   * `python data_generators/feature_relative_difference.py`
 * **PROTS features** (dimension=13)
+
+#### Data issues
+
+* 1h7mA has some atoms with *negative* residue ids and first and last residue is GLY which has only one atom. DSSP can handle regative residue ids but for those two residues it produced nothing. Therefore they are manually handled.

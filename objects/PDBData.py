@@ -128,15 +128,15 @@ class PDBData(object):
         print("Generating fasta {}:{}, Seq-len:{} ... ..".format(pdb_id, chain_id, len(seq)))
         return seq, len(seq)
     
-    def create_mutant_fasta_file(self, wild_fasta_file, mutant_fasta_file, mutation_site, wild_residue, mutation=None):
+    def create_mutant_fasta_file(self, wild_fasta_file, mutant_fasta_file, mutation_site, mutant_residue, mutation=None):
         pdbid = wild_fasta_file.split("/")[2].split(".")[0]
-        wild_residue = Polypeptide.three_to_one(wild_residue) if len(wild_residue)==3 else wild_residue
+        mutant_residue = Polypeptide.three_to_one(mutant_residue) if len(mutant_residue)==3 else mutant_residue
         with open(wild_fasta_file, "r") as wild_fasta_reader:
             lines = wild_fasta_reader.readlines()
             # print(lines)
             with open(mutant_fasta_file, 'w') as mutant_fasta_writer:
-                # print(lines[1][mutation_site])# = wild_residue
-                fasta = lines[1][:mutation_site] + wild_residue + lines[1][mutation_site+1:]
+                # print(lines[1][mutation_site])# = mutant_residue
+                fasta = lines[1][:mutation_site] + mutant_residue + lines[1][mutation_site+1:]
                 mutant_fasta_writer.write(lines[0].rstrip()+":{}\n".format(mutation))
                 mutant_fasta_writer.write(fasta)
     
@@ -224,10 +224,13 @@ class PDBData(object):
     def get_full_ss_and_sa(self, pdb_id, chain_id, cln_pdb_file, ss_dict, sa_classification_func):
         """sa: solvent accessibility, ss:Secondary structure
         """
-        residue_ids_dict = self.get_residue_ids_dict(cln_pdb_file, chain_id)
+        model = PDBParser(QUIET=True).get_structure(pdb_id, cln_pdb_file)[0]
+        dssp = DSSP(model, cln_pdb_file, dssp="mkdssp")
+        
         ss_types, sa_types, rasa_values = [], [], []
-        for res_id in residue_ids_dict.keys():
-            ss, rasa = self.get_ss_and_rasa_at_residue(pdb_id, chain_id, cln_pdb_file, res_id)
+        for residue in model.get_residues():
+            if (chain_id, residue.id) in dssp.keys(): ss, rasa = dssp[chain_id, residue.id][2], dssp[chain_id, residue.id][3]
+            else: ss, rasa = "-", 0.5 # rasa=0.5 means intermediate, neither exposed nor buried
             ss_types.append(ss_dict.get(ss))
             sa_types.append(sa_classification_func(rasa))
             rasa_values.append(rasa)
@@ -235,11 +238,17 @@ class PDBData(object):
         return "".join(ss_types), "".join(sa_types), rasa_values
     
     
-# clean_pdb_file = "data/pdbs_clean/1amqA.pdb" 
-# PDBData = PDBData(pdb_dir="data/pdbs/")
-# residue_ids_dict = PDBData.get_residue_ids_dict(pdb_file=clean_pdb_file, chain_id="A")
-# print(residue_ids_dict)
-# print(get_starting_residue_index(pdb_file=clean_pdb_file))
+# def get_sa_type(rasa):
+#     if rasa<0.25: sa="B" # Buried
+#     elif rasa>0.5: sa="E" # Exposed
+#     else: sa="I" # Intermediate 
+#     return sa    
+# ss_dict={"H":"H", "G":"H", "I":"H", "B":"B", "E":"B", "T":"C", "S":"C", "-":"C"}
 
-# print(get_last_residue_id("data/pdbs_clean/1a43A.pdb", "A"))
-# print(get_first_residue_id("data/pdbs_clean/1a43A.pdb", "A"))
+# pdb_id="1h7m"    
+# chain_id="A"
+# cln_pdb_file = "data/pdbs_clean/1h7mA.pdb"
+# pdbdata = PDBData(pdb_dir="data/pdbs/")
+# residue_ids_dict = pdbdata.get_residue_ids_dict(pdb_file=cln_pdb_file, chain_id=chain_id)
+# print(residue_ids_dict)
+# pdbdata.get_full_ss_and_sa(pdb_id, chain_id, cln_pdb_file, ss_dict, sa_classification_func=get_sa_type)

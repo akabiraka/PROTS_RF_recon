@@ -20,7 +20,7 @@ n_rows_to_skip = 0
 n_rows_to_evalutate = 100000
 
 # object initialization
-PDBData = PDBData(pdb_dir=pdb_dir)
+pdbdata = PDBData(pdb_dir=pdb_dir)
 
 df = pd.read_csv(input_file_path)
 
@@ -35,18 +35,23 @@ for i, row in df.iterrows():
     wild_residue = row["wild_residue"]
     mutant_residue = row["mutant_residue"]
     ddg = row["ddG"]
-    print("Row no:{}->{}{}, mutation:{}".format(i+1, pdb_id, chain_id, mutation))
     
     # creating necessary file paths
-    clean_pdb_file = pdbs_clean_dir+pdb_id+chain_id+".pdb"
+    cln_pdb_file = pdbs_clean_dir+pdb_id+chain_id+".pdb"
     wild_fasta_file = fastas_dir+pdb_id+chain_id+".fasta"
     mutant_fasta_file = fastas_dir+pdb_id+chain_id+"_"+mutation+".fasta"
     
+    # getting zero based mutation site
+    residue_ids_dict = pdbdata.get_residue_ids_dict(pdb_file=cln_pdb_file, chain_id=chain_id)
+    zero_based_mutation_site = residue_ids_dict.get(mutation_site)
+    
+    print("Row no:{}->{}{}, mutation:{}".format(i+1, pdb_id, chain_id, mutation, mutation_site, zero_based_mutation_site))
+    
     # download PDB structure and fasta file
-    PDBData.download_structure(pdb_id=pdb_id)
-    PDBData.clean(pdb_id=pdb_id, chain_id=chain_id, selector=ChainAndAminoAcidSelect(chain_id))
-    PDBData.generate_fasta_from_pdb(pdb_id=pdb_id, chain_id=chain_id, input_pdb_filepath=clean_pdb_file, save_as_fasta=True, output_fasta_dir=fastas_dir)
-    PDBData.create_mutant_fasta_file(wild_fasta_file=wild_fasta_file, mutant_fasta_file=mutant_fasta_file, mutation_site=mutation_site, wild_residue=wild_residue, mutation=mutation)
+    pdbdata.download_structure(pdb_id=pdb_id)
+    pdbdata.clean(pdb_id=pdb_id, chain_id=chain_id, selector=ChainAndAminoAcidSelect(chain_id))
+    pdbdata.generate_fasta_from_pdb(pdb_id=pdb_id, chain_id=chain_id, input_pdb_filepath=cln_pdb_file, save_as_fasta=True, output_fasta_dir=fastas_dir)
+    pdbdata.create_mutant_fasta_file(wild_fasta_file=wild_fasta_file, mutant_fasta_file=mutant_fasta_file, mutation_site=zero_based_mutation_site, mutant_residue=mutant_residue, mutation=mutation)
     
     print()
     if i+1 == n_rows_to_skip+n_rows_to_evalutate: 
