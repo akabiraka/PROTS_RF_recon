@@ -19,7 +19,7 @@ Base paper title: PROTS-RF: A Robust Model for Predicting MutationInduced Protei
 
     * Download rp-seq-75 (or rp-seq-55) from this link: https://proteininformationresource.org/rps/
     * Make BlastDB from fasta following this link: https://www.ncbi.nlm.nih.gov/books/NBK569856/
-    * The particular command should be looks like this: `3rd_party_items/ncbi-blast-2.12.0+/bin/makeblastdb -dbtype prot -in path/to/rp-seq-75.fasta -input_type fasta -out 3rd_party_items/rp_seq_75/`
+    * The particular command should be looks like this: `3rd_party_items/ncbi-blast-2.12.0+/bin/makeblastdb -dbtype prot -in path/to/rp-seq-75.fasta -input_type fasta -out 3rd_party_items/rp_seq_75/rp_seq_75`
   * Since PSSM feature generation takes longer, therefore generated distributedly in GMU argo cluster:
 
     * `sbatch jobs/distributed_pssm_generator.sh`
