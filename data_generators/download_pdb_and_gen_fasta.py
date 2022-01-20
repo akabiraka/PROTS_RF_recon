@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from objects.PDBData import PDBData
 from objects.Selector import ChainAndAminoAcidSelect
-import utils as Utils
+import data_generators.utils as Utils
 
 # configurations
 pdb_dir = "data/pdbs/"
