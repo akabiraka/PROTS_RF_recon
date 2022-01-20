@@ -7,6 +7,7 @@ import numpy as np
 import torch
 from objects.PDBData import PDBData
 from objects.Selector import ChainAndAminoAcidSelect
+import utils as Utils
 
 # configurations
 pdb_dir = "data/pdbs/"
@@ -26,33 +27,28 @@ df = pd.read_csv(input_file_path)
 
 for i, row in df.iterrows():
     if i+1 <= n_rows_to_skip: continue
-    
+
     # extracting the data
-    pdb_id = row["pdb_id"].lower()[:4]
-    chain_id = row["chain_id"]
-    mutation = row["mutation"]
-    mutation_site = int(row["mutation_site"])
-    wild_residue = row["wild_residue"]
-    mutant_residue = row["mutant_residue"]
-    ddg = row["ddG"]
+    pdb_id, chain_id, mutation, mutation_site, wild_residue, mutant_residue, ddg = Utils.get_row_items(row)
     
     # creating necessary file paths
     cln_pdb_file = pdbs_clean_dir+pdb_id+chain_id+".pdb"
     wild_fasta_file = fastas_dir+pdb_id+chain_id+".fasta"
     mutant_fasta_file = fastas_dir+pdb_id+chain_id+"_"+mutation+".fasta"
     
-    # getting zero based mutation site
-    residue_ids_dict = pdbdata.get_residue_ids_dict(pdb_file=cln_pdb_file, chain_id=chain_id)
-    zero_based_mutation_site = residue_ids_dict.get(mutation_site)
-    
-    print("Row no:{}->{}{}, mutation:{}".format(i+1, pdb_id, chain_id, mutation, mutation_site, zero_based_mutation_site))
-    
-    # download PDB structure and fasta file
+    # downloading and cleaning PDB structure
     pdbdata.download_structure(pdb_id=pdb_id)
     pdbdata.clean(pdb_id=pdb_id, chain_id=chain_id, selector=ChainAndAminoAcidSelect(chain_id))
+
+    # getting 0-based mutation site
+    zero_based_mutation_site = Utils.get_zero_based_mutation_site(cln_pdb_file, chain_id, mutation_site)
+    print("Row no:{}->{}{}, mutation:{}, 0-based_mutaiton_site:{}".format(i+1, pdb_id, chain_id, mutation, zero_based_mutation_site))
+
+    # generating wild and mutant fasta file
     pdbdata.generate_fasta_from_pdb(pdb_id=pdb_id, chain_id=chain_id, input_pdb_filepath=cln_pdb_file, save_as_fasta=True, output_fasta_dir=fastas_dir)
-    pdbdata.create_mutant_fasta_file(wild_fasta_file=wild_fasta_file, mutant_fasta_file=mutant_fasta_file, mutation_site=zero_based_mutation_site, mutant_residue=mutant_residue, mutation=mutation)
+    pdbdata.create_mutant_fasta_file(wild_fasta_file=wild_fasta_file, mutant_fasta_file=mutant_fasta_file, zero_based_mutation_site=zero_based_mutation_site, mutant_residue=mutant_residue, mutation=mutation)
     
     print()
     if i+1 == n_rows_to_skip+n_rows_to_evalutate: 
         break
+

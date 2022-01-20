@@ -6,9 +6,11 @@ Base paper title: PROTS-RF: A Robust Model for Predicting MutationInduced Protei
 
 * **Download and clean**: `python data_generators/download_pdb_and_gen_fasta.py`
 * **Evolutionary features** (dimension=16):
+  * Based on wild and mutant sequences.
   * `sbatch jobs/distributed_pssm_generator.sh`
   * `python data_generators/feature_pssm.py`
 * **Secondary structure, solvent accessibility, relative accessible surface area** (dimension=6)
+  * Bases on wild-type protein structure.
   * Install DSSP: `sudo apt install dssp`
     * from: https://ssbio.readthedocs.io/en/latest/instructions/dssp.html
     * This installs 3.0.0 but current version is 4.0
