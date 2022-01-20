@@ -16,7 +16,7 @@ class PSSM(object):
     def __init__(self, db=None, output_dir=None) -> None:
         super().__init__()
         # self.db = "3rd_party_items/swissprot_db/swissprot" if db is None else db
-        self.db = "3rd_party_items/rp_seqs_75/rp_seqs_75"
+        self.db = "3rd_party_items/rp_seq_75/rp_seq_75"
         self.output_dir = "data/pssms/" if output_dir is None else output_dir
         self.psiblast_exe = "3rd_party_items/ncbi-blast-2.12.0+/bin/psiblast"
         self.pdb_id = None
