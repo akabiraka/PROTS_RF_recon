@@ -2,7 +2,7 @@ import sys
 sys.path.append("../PROTS_RF_recon")
 
 import pandas as pd
-from objects.MutationUtils import MutationUtils
+import data_generators.utils as Utils
 from objects.PDBData import PDBData
 from itertools import permutations
 from Bio import SeqIO
@@ -14,7 +14,6 @@ import json
 class PROTS(object):
     def __init__(self) -> None:
         super().__init__()
-        self.mutation_utils = MutationUtils()
 
         self.pdbdata = PDBData()
         self.pdbio = PDBIO()
@@ -25,10 +24,10 @@ class PROTS(object):
         
         self.ss_dict={"H":"H", "G":"H", "I":"H", "B":"B", "E":"B", "T":"C", "S":"C", "-":"C"}
         
-        self.out_file = "data/features/prots/fragment_vs_feature_occ_count.csv"
+        self.out_file = "data/features/prots/fragment_vs_feature_occ_count_1.csv"
         self.json_out_file = "data/features/prots/fragment_vs_feature_occ_indices_per_protein.json"
         if not os.path.exists(self.out_file): 
-            pd.DataFrame(columns=["fragment", "n_occurance" "n_helix", "n_sheet", "n_coil", "n_buried", "n_exposed", "n_intermediate"]).to_csv(self.out_file)
+            pd.DataFrame(columns=["fragment", "n_occurance", "n_helix", "n_sheet", "n_coil", "n_buried", "n_exposed", "n_intermediate"]).to_csv(self.out_file, index=False)
         
 
 
@@ -41,8 +40,9 @@ class PROTS(object):
             print("Computing permutations ...") 
             aminos_acids = "ARNDCEQGHILKMFPSTWYV"
             fragments=["".join(i) for i in permutations(aminos_acids, fragment_size)]
-            df = pd.DataFrame(fragments, columns=[col_name])
-            df.to_csv(self.out_file, index=False)
+            out_df = pd.read_csv(self.out_file)
+            out_df[col_name] = fragments
+            out_df.to_csv(self.out_file, index=False)
             return fragments
             
 
@@ -51,7 +51,7 @@ class PROTS(object):
         df = pd.read_csv("data/dataset_5_train.csv")
         sum=0
         for i, row in df.iterrows():
-            pdb_id, chain_id, mutation, _, _, _, _ = self.mutation_utils.get_row_items(row)
+            pdb_id, chain_id, mutation, _, _, _, _ = Utils.get_row_items(row)
             fasta_file = self.fastas_dir+pdb_id+chain_id+"_"+mutation+".fasta"
             fasta = next(SeqIO.parse(fasta_file, "fasta"))
             sum = sum + fasta.seq.count(fragment) # the num of time a fragment occurs in a seq
@@ -108,47 +108,39 @@ class PROTS(object):
             # break
         return n_helix, n_sheet, n_coil, n_buried, n_exposed, n_intermediate, all_occurances
 
-    def compute_all_feat_occ_for_all_frag(self):
+    def compute_all_feat_occ_for_all_frag(self, row_index):
         out_df = pd.read_csv(self.out_file)
+        print(out_df.loc[row_index])
+
         all_frag_occ_indices = []
-        for i, row in out_df.iterrows():
-            fragment = row["fragment"]
-            print("Computing occ for: ", i, fragment)
+        # for i, row in out_df.iterrows():
 
-            n_occurance = self.get_occurance_of_fragment(fragment)
-            print("    fragment {} occurred in the dataset: {}".format(fragment, n_occurance))
-            
-            n_helix, n_sheet, n_coil, n_buried, n_exposed, n_intermediate, all_occurances = self.get_all_feat_occ_for_a_frag(fragment=fragment)
-            print("    feature occ: ", n_helix, n_sheet, n_coil, n_buried, n_exposed, n_intermediate)
-            
-            
-            out_df.loc[i, "n_occurance"] = n_occurance
-            out_df.loc[i, "n_helix"] = n_helix
-            out_df.loc[i, "n_sheet"] = n_sheet
-            out_df.loc[i, "n_coil"] = n_coil
-            out_df.loc[i, "n_buried"] = n_buried
-            out_df.loc[i, "n_exposed"] = n_exposed
-            out_df.loc[i, "n_intermediate"] = n_intermediate
+        fragment = out_df.loc[row_index, "fragment"]
+        print("Computing occ for: ", row_index, fragment)
 
-
-            all_frag_occ_indices.append({fragment: all_occurances})
-            # break
-
-            print("    updating the occ and json file ....\n")
-            out_df.to_csv(self.out_file, index=False)
-
-            with open(self.json_out_file, "w") as f:
-                json_out = json.dumps(all_frag_occ_indices)
-                f.write(json_out)
-
-            
-       
+        n_occurance = self.get_occurance_of_fragment(fragment)
+        print("    fragment {} occurred in the dataset: {}".format(fragment, n_occurance))
+        
+        n_helix, n_sheet, n_coil, n_buried, n_exposed, n_intermediate, all_occurances = self.get_all_feat_occ_for_a_frag(fragment=fragment)
+        print("    feature occ: ", n_helix, n_sheet, n_coil, n_buried, n_exposed, n_intermediate)
+        
+        
+        out_df.loc[row_index, "n_occurance"] = n_occurance
+        out_df.loc[row_index, "n_helix"] = n_helix
+        out_df.loc[row_index, "n_sheet"] = n_sheet
+        out_df.loc[row_index, "n_coil"] = n_coil
+        out_df.loc[row_index, "n_buried"] = n_buried
+        out_df.loc[row_index, "n_exposed"] = n_exposed
+        out_df.loc[row_index, "n_intermediate"] = n_intermediate
 
 
-prots = PROTS()
-# fragments = prots.do_permutation(4, False)
-# print(len(fragments))
+        all_frag_occ_indices.append({fragment: all_occurances})
+        # break
 
+        print("    updating the occ and json file ....\n")
+        out_df.to_csv(self.out_file, index=False)
 
-# prots.get_all_feat_occ_for_a_frag(fragment="ARND")
-prots.compute_all_feat_occ_for_all_frag()
+        with open(self.json_out_file, "a") as f:
+            json_out = json.dumps({fragment: all_occurances})
+            f.write(json_out)
+            f.write(",\n")
