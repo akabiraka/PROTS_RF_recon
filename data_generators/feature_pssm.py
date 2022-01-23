@@ -4,8 +4,8 @@ sys.path.append("../PROTS_RF_recon")
 import pandas as pd
 import numpy as np
 
-from features.PSSM import PSSM
-from objects.MutationUtils import MutationUtils
+from objects.PSSM import PSSM
+import data_generators.utils as Utils
 
 # configs
 pdbs_cln_dir="data/pdbs_clean/"
@@ -18,20 +18,19 @@ n_rows_to_evalutate = 10
 
 # objects 
 pssm=PSSM()
-mutation_utils=MutationUtils()
 df = pd.read_csv(input_file_path)
 
 for i, row in df.iterrows():
     if i+1 <= n_rows_to_skip: continue
     
     # extracting the data
-    pdb_id, chain_id, mutation, mutation_site, wild_residue, mutant_residue, ddg = mutation_utils.get_row_items(row)
+    pdb_id, chain_id, mutation, mutation_site, wild_residue, mutant_residue, ddg = Utils.get_row_items(row)
     
     clean_pdb_file = pdbs_cln_dir+pdb_id+chain_id+".pdb"
-    zero_based_mutation_site = mutation_utils.get_zero_based_mutation_site(clean_pdb_file, chain_id, mutation_site)
+    zero_based_mutation_site = Utils.get_zero_based_mutation_site(clean_pdb_file, chain_id, mutation_site)
     print("Row no:{}->{}{}, mutation:{}, mutation_site:{}, zero_based_mutation_site:{}".format(i+1, pdb_id, chain_id, mutation, mutation_site, zero_based_mutation_site))
 
-    # computing wildtype features
+    print("computing wildtype features ...")
     wild_fasta_file = fastas_dir+pdb_id+chain_id+".fasta"
     pssm.set_up(wild_fasta_file)
     wtlo = pssm.get_logodds(zero_based_mutation_site) #wildtype logodds
@@ -45,7 +44,7 @@ for i, row in df.iterrows():
     wtsm9 = pssm.get_avg_softmax(zero_based_mutation_site, 9) #wildtype softmax of 9 neighbors
     wtsm15 = pssm.get_avg_softmax(zero_based_mutation_site, 15) #wildtype softmax of 15 neighbors
 
-    # computing variant features
+    print("computing variant features ...")
     mutant_fasta_file = fastas_dir+pdb_id+chain_id+"_"+mutation+".fasta"
     pssm.set_up(mutant_fasta_file)
     vlo = pssm.get_logodds(zero_based_mutation_site) #variant logodds
@@ -59,10 +58,11 @@ for i, row in df.iterrows():
     vsm9 = pssm.get_avg_logodds(zero_based_mutation_site, 9) #variant logodds of 9 neighbors
     vsm15 = pssm.get_avg_logodds(zero_based_mutation_site, 15) #variant logodds of 15 neighbors
 
-    print("saving pssm features ...")
+    
     features = np.concatenate((wtlo, wtsm, wtsm5, wtsm9, wtsm15, wtlo5, wtlo9, wtlo15, vlo, vsm, vsm5, vsm9, vsm15, vlo5, vlo9, vlo15))
     with open(out_dir+pdb_id+chain_id+"_"+mutation+".npy", 'wb') as f: np.save(f, features)
     # with open(out_dir+pdb_id+chain_id+"_"+mutation+".npy", 'rb') as f: print(np.load(f))
+    print("saved pssm features of shape: {}: {}".format(features.shape, features))
 
     print()
     if i+1 == n_rows_to_skip+n_rows_to_evalutate: 
