@@ -138,7 +138,10 @@ class PROTS(object):
         # break
 
         print("    updating the occ and json file ....\n")
-        out_df.to_csv(self.out_file, index=False)
+        # out_df.to_csv(self.out_file, index=False)
+
+        with open("data/features/prots/xx.csv", "a") as f:
+            f.write("{}, {}, {}, {}, {}, {}, {}, {}\n".format(fragment, n_occurance, n_helix, n_sheet, n_coil, n_buried, n_exposed, n_intermediate))
 
         with open(self.json_out_file, "a") as f:
             json_out = json.dumps({fragment: all_occurances})

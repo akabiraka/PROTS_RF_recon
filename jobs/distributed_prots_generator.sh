@@ -10,7 +10,6 @@
 #SBATCH --cpus-per-task=2
 #SBATCH --mem=8000MB
 
-##for training
 #SBATCH --array=0-116279
 ##the array task is set in the environment variable $SLURM_ARRAY_TASK_ID in python you
 ##can scrape it with ID = int(os.environ["SLURM_ARRAY_TASK_ID"])
