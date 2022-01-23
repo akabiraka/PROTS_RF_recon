@@ -4,8 +4,8 @@ sys.path.append("../PROTS_RF_recon")
 import pandas as pd
 import numpy as np
 
-from features.RelativeDifference import RelativeDifference
-from objects.MutationUtils import MutationUtils
+from objects.RelativeDifference import RelativeDifference
+import data_generators.utils as Utils
 
 # configs
 pdbs_cln_dir="data/pdbs_clean/"
@@ -14,18 +14,18 @@ input_file_path="data/dataset_5_train.csv"
 # input_file_path="data/dataset_5_test.csv"
 out_dir="data/features/relative_diff/"
 n_rows_to_skip = 0
-n_rows_to_evalutate = 10
+n_rows_to_evalutate = 1000000
 
 # objects 
 relative_diff=RelativeDifference()
-mutation_utils=MutationUtils()
 df = pd.read_csv(input_file_path)
 
 for i, row in df.iterrows():
     if i+1 <= n_rows_to_skip: continue
     
     # extracting the data
-    pdb_id, chain_id, mutation, mutation_site, wild_residue, mutant_residue, ddg = mutation_utils.get_row_items(row)
+    pdb_id, chain_id, mutation, mutation_site, wild_residue, mutant_residue, ddg = Utils.get_row_items(row)
+    print("Row no:{}->{}{}, mutation:{}".format(i+1, pdb_id, chain_id, mutation))
 
     wild_fasta_file = fastas_dir+pdb_id+chain_id+".fasta"
     _, wt_posi = relative_diff.count_positive_charged_residues(wild_fasta_file)
@@ -48,10 +48,10 @@ for i, row in df.iterrows():
     tiny = wt_tiny - mt_tiny
 
 
-    print("saving relative-difference (posi, nega, char, smal, tiny)...  {}{}, mutation:{}, mutation_site:{}".format(pdb_id, chain_id, mutation, mutation_site))
     features = np.array([posi, nega, char, smal, tiny])
-    with open(out_dir+pdb_id+chain_id+"_"+mutation+".npy", 'wb') as f: np.save(f, features)
-    # with open(out_dir+pdb_id+chain_id+"_"+mutation+".npy", 'rb') as f: print(np.load(f))
+    Utils.save_as_pickle(features, out_dir+pdb_id+chain_id+"_"+mutation+".pkl")
+    # features = Utils.load_pickle(out_dir+pdb_id+chain_id+"_"+mutation+".pkl")
+    print("saved features of shape: {}, {}".format(features.shape, features))
 
     print()
     if i+1 == n_rows_to_skip+n_rows_to_evalutate: break

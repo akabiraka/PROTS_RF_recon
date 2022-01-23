@@ -56,6 +56,7 @@ Base paper title: PROTS-RF: A Robust Model for Predicting MutationInduced Protei
     * `python data_generators/feature_ss_sa_rasa.py`
 * **Relative difference** (dimension=5)
 
+  * Based on wild and mutant sequences.
   * Described in details in authors previous work: https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-62
   * `python data_generators/feature_relative_difference.py`
 * **PROTS features** (dimension=13)
