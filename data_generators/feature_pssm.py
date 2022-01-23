@@ -60,8 +60,8 @@ for i, row in df.iterrows():
 
     
     features = np.concatenate((wtlo, wtsm, wtsm5, wtsm9, wtsm15, wtlo5, wtlo9, wtlo15, vlo, vsm, vsm5, vsm9, vsm15, vlo5, vlo9, vlo15))
-    with open(out_dir+pdb_id+chain_id+"_"+mutation+".npy", 'wb') as f: np.save(f, features)
-    # with open(out_dir+pdb_id+chain_id+"_"+mutation+".npy", 'rb') as f: print(np.load(f))
+    Utils.save_as_pickle(features, out_dir+pdb_id+chain_id+"_"+mutation+".pkl")
+    # features = Utils.load_pickle(out_dir+pdb_id+chain_id+"_"+mutation+".pkl")
     print("saved pssm features of shape: {}: {}".format(features.shape, features))
 
     print()
