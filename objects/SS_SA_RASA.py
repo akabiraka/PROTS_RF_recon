@@ -17,7 +17,7 @@ class SS_SA_RASA(object):
         return np.array([0.1 if char != letter else 0.9 for char in "HBC"], dtype=np.float32)
 
     def get_sa_onehot(self, rasa):
-        letter="E" if rasa>=0.25 else "B" #0=exposed, 0=buried
+        letter="E" if rasa>=0.25 else "B" #1=exposed, 0=buried
         return np.array([0.1 if char != letter else 0.9 for char in "EB"], dtype=np.float32)
 
     def get_ss_sa_rasa(self, pdb_id, chain_id, cln_pdb_file, mutation_site):

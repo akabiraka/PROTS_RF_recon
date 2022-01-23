@@ -52,7 +52,8 @@ Base paper title: PROTS-RF: A Robust Model for Predicting MutationInduced Protei
     * 4.0 is not compatible with Biopython DSSP module. It can be installed by following:
       * Home: https://swift.cmbi.umcn.nl/gv/dssp/
       * Github: https://github.com/PDB-REDO/dssp
-  * `python data_generators/sa_sa_rasa.py`
+  * To compute the **SS and SA** features:
+    * `python data_generators/feature_ss_sa_rasa.py`
 * **Relative difference** (dimension=5)
 
   * Described in details in authors previous work: https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-62
