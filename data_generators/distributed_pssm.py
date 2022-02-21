@@ -2,6 +2,7 @@ import sys
 sys.path.append("../PROTS_RF_recon")
 
 import pandas as pd
+import subprocess
 import os
 from objects.PDBData import PDBData
 from objects.PSSM import PSSM
@@ -23,27 +24,52 @@ pssm = PSSM()
 # data generation
 dfs = pd.read_csv(input_file_path)
 
-    
-i = int(os.environ["SLURM_ARRAY_TASK_ID"])    
-# i=161
-unique_pdb_ids = dfs["pdb_id"].drop_duplicates().to_list()
-unique_pdb_ids.sort()
-ith_pdb_id = unique_pdb_ids[i]
-ith_protein_mutation_dfs = dfs[dfs["pdb_id"]==ith_pdb_id]
-# print(ith_protein_mutation_dfs)
+def run_command(command):
+   return subprocess.getoutput(command)
 
-for i, row in ith_protein_mutation_dfs.iterrows():
-    # extracting the data
-    pdb_id, chain_id, mutation, mutation_site, wild_residue, mutant_residue, ddg = Utils.get_row_items(row)
-
-    # creating necessary file paths
-    wild_fasta_file = fastas_dir+pdb_id+chain_id+".fasta"
-    mutant_fasta_file = fastas_dir+pdb_id+chain_id+"_"+mutation+".fasta"
-
-    # generating PSSM
+def generate_wild_pssm(wild_fasta_file):
     pssm.set_up(wild_fasta_file)
+
+
+def generate_mutant_pssm(mutant_fasta_file):
     pssm.set_up(mutant_fasta_file)
 
-    # saving logs
-    with open("outputs/argo_logs/pssms_done.txt", "a") as f:
-        f.write("{}, {}, {}\n".format(i, wild_fasta_file, mutant_fasta_file))
+
+def generate_pssm_for_ith_wild_fasta(i):
+    pdb_chain_ids = dfs["pdb_id"]+dfs["chain_id"]
+    unique_pdb_chain_ids = pdb_chain_ids.drop_duplicates().to_list()
+    unique_pdb_chain_ids.sort()
+    print(len(unique_pdb_chain_ids))
+    pdb_chain_id = unique_pdb_chain_ids[i]
+    print(pdb_chain_id)
+    wild_fasta_file = fastas_dir+pdb_chain_id+".fasta"
+    generate_wild_pssm(wild_fasta_file)
+
+
+def generate_pssm_for_ith_mutant_fasta(i):
+    pdb_chain_mutation_ids = dfs["pdb_id"]+dfs["chain_id"]+ "_" + dfs["mutation"]
+    pdb_chain_mutation_ids = pdb_chain_mutation_ids.drop_duplicates().to_list()
+    pdb_chain_mutation_ids.sort()
+    print(len(pdb_chain_mutation_ids))
+    pdb_chain_mutation_id = pdb_chain_mutation_ids[i]
+    print(pdb_chain_mutation_id)
+    mutant_fasta_file = fastas_dir+pdb_chain_mutation_id+".fasta"
+    generate_mutant_pssm(mutant_fasta_file)
+
+
+def remove_ith_proteins_pssms(i):
+    unique_pdb_ids = dfs["pdb_id"].drop_duplicates().to_list()
+    unique_pdb_ids.sort()
+    ith_pdb_id = unique_pdb_ids[i]
+    ith_protein_mutation_dfs = dfs[dfs["pdb_id"]==ith_pdb_id]
+    ith_protein_mutation_dfs = ith_protein_mutation_dfs.reset_index()
+    print(ith_pdb_id, ith_protein_mutation_dfs.shape)
+    print(ith_protein_mutation_dfs)
+    print("removing all pssms for {} ...".format(ith_pdb_id))
+    run_command("rm -rf data/pssms/{}*".format(ith_pdb_id))
+
+# i = int(os.environ["SLURM_ARRAY_TASK_ID"]) 
+i=11
+# remove_ith_proteins_pssms(i)
+# generate_pssm_for_ith_wild_fasta(i)
+generate_pssm_for_ith_mutant_fasta(i)
